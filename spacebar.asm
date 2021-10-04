@@ -1,3 +1,5 @@
+;Parašykite programą, kuri atspausdina tarpų pozicijas įvestoje simbolių eilutėje;  Pvz.: įvedus asl A1p3i DI iiO turi atspausdinti 4 10 13
+;Write a program that would print out the positions of spacebars in a string that the user input. For example, input asl A1p3i DI iiO would print 4 10 13
 .MODEL small	;atminties modelis
 .STACK 100h		;stack'o dydis
 .DATA		;aprasom duomenu segmenta
