@@ -39,9 +39,9 @@ save:
 mov cx, bx      ;cx=bx, kad neprarasti bx, nes bus atliekami su juo veiksmai
 
 gettingready: 
-mov si, offset array    
+mov si, offset array   ;si bus masyvo adresas 
 pop dx
-mov [si+bx], dl
+mov [si+bx], dl        ;i masyvo tam tikra pozicija idedam dx (tarpo pozicija)
 dec bx
 cmp bx, 0
 ja gettingready
@@ -55,8 +55,8 @@ skaitmenu_sk:
 mov ah, 2         ;output spacebar
 mov dl, 20h  
 int 21h      
-inc si               
-mov dl, [si]         
+inc si            ;pradziai si buvo tik masyvo pradine vieta, tai didinant einam pro visas masyvo pozicijas   
+mov dl, [si]        ;dl'ui priskiriam si'elinta (kazkelinta) masyvo nari 
 cmp dx, 9  
 ja dvizenklis  ;jeigu daugiau uz 9, tai bus dvizenklis
 ;jeigu vienazenklis, tai tsg eis toliau i apacia 
@@ -83,7 +83,7 @@ pop dx      ;isimam liekan is stack
 add dx, 48 
 mov ah, 2
 int 21h   
-sub bl, 1
+sub bl, 1   
 cmp bl, 0
 jne skaitmenu_sk
 ;nereikia cia jau jump i pabaiga, nes tsg eis i apacia
