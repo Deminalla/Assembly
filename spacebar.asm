@@ -20,7 +20,7 @@ mov dl, 0               ;jis pradzioje kazkoks kitoks sk, tai neutralizuojam
  
 testing:                ;tikrinam kiekviena ivesta zenkla
 inc dl                  ;nustatom nariu pozicija    
-inc si                  ;daryt pries byte ptr, nes kitaip prades nuo kazkokio -1-elinto cimbolio
+inc si                  ;kad nuskaitytu ten, kur 100dup(0), o ne kur ?, cia tas pats kaip byte ptr [si] + 1
 mov al, byte ptr [si]   ;al - priskiriu si-elinta (kazkelinta) simboli
 cmp al, 20h             ;tarpas prilygsta 20 16-taineje sistemoje
 je tarpas               ;jump if equal
