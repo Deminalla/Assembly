@@ -38,9 +38,9 @@ save:
 mov cx, bx      ;cx laikinas, nes su bx but altiekamas veiksmas, tai kad neprarasti kiek kartu yra tarpas
 
 backwards: 
-mov si, offset array   ;si - masyvo adresas   ;2 4 10  is steko bus 10 4 2, tai cia viska apverciu
-pop dx                 ;is stack'o isimu tarpo pozicija
-mov [si+bx], dl        ;pozicija idedu i masyva  3-ioje vietoje 10, 2-oje vietoje 4 ir t t
+mov si, offset array     ;si - masyvo adresas   ;2 4 10  is steko bus 10 4 2, tai cia viska apverciu
+pop dx                   ;is stack'o isimu tarpo pozicija
+mov [si+bx], dl          ;pozicija idedu i masyva  3-ioje vietoje 10, 2-oje vietoje 4 ir t t
 dec bx
 cmp bx, 0
 ja backwards
