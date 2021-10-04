@@ -36,7 +36,7 @@ cmp dl, cl
 jb testing       ;griztam prie simboliu tikrinimo
 
 save:
-mov cx, bx
+mov cx, bx      ;cx=bx, kad neprarasti bx, nes bus atliekami su juo veiksmai
 
 gettingready: 
 mov si, offset array    
@@ -46,7 +46,7 @@ dec bx
 cmp bx, 0
 ja gettingready
 
-mov bx, cx
+mov bx, cx          ;su cx bus atliekami kiti veiksmai, tai issaugojam i bx
 mov ah, 9               ;string output
 mov dx, offset new_line  
 int 21h 
