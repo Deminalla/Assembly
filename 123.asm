@@ -72,8 +72,8 @@ jmp pabaiga
 dvizenklis: 
 mov ax, dx    ;kadangi dvizenklis, viskas tilps i ax 
 mov dx, 0     ;viskas telpa i ax, tai dx=0
-mov cx, 10    ;dalinsim is 10, kad gautume liekana 
-div cx        ;ax pirmas sk, dx - antras sk (liekana)  
+mov cx, 10     
+div cx        ;, dalyba is 10, ax pirmas sk, dx - antras sk (liekana)  
 push dx       ;liekana deti i stack, kad jo nepamest
 mov dx, ax    ;dx=ax, nes mum reikes isvesti dl tai pirma skaitemi jam prilyginam
 add dx, 48  
