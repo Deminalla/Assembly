@@ -28,26 +28,16 @@ cmp al, 20h             ;tarpas prilygsta 20 16-taineje sistemoje
 je tarpas               ;jump if equal
 cmp dl, cl              ;ziurim ar visus simbolius patikrinom
 jb testing              ;jump if its below/less than cl
-jmp save                ;jeigu perziurejom visus simbolius, einam prie isvedinejimo
+jmp line                ;jeigu perziurejom visus simbolius, einam prie isvedinejimo
 
 tarpas:
-push dx         ;i stack idedam tarpo pozicija 
-inc bl          ;bl++, kiek bus tarpu, kad zinot kiek kartu paskui isvesti
+inc bx                 ;bx - tarpu sk, kad zinot kiek kartu paskui isvesti
+mov di, offset array   ;di - masyvo adresas    
+mov [di+bx], dl        ;i masyva idedam tarpo pozicija
 cmp dl, cl
 jb testing      ;griztam prie simboliu tikrinimo
 
-save:
-mov cx, bx      ;cx laikinas, nes su bx but altiekamas veiksmas, tai kad neprarasti kiek kartu yra tarpas
-
-backwards: 
-mov si, offset array     ;si - masyvo adresas   ;2 4 10  is steko bus 10 4 2, tai cia viska apverciu
-pop dx                   ;is stack'o isimu tarpo pozicija
-mov [si+bx], dl          ;pozicija idedu i masyva  3-ioje vietoje 10, 2-oje vietoje 4 ir t t
-dec bx
-cmp bx, 0
-ja backwards
-
-mov bx, cx               ;bx'ui grazinam buvusia reiksme, kiek kartu bus tarpas
+line:
 mov ah, 9                ;string output
 mov dx, offset new_line  ;endl
 int 21h 
@@ -56,8 +46,8 @@ skaitmenu_sk:
 mov ah, 2         
 mov dl, 20h     ;output spacebar
 int 21h         
-inc si          ;si - vis dar masyvo adresas    
-mov dl, [si]    ;dl'ui priskiriam kazkelinta masyvo elementa    
+inc di              
+mov dl, [di]    ;dl'ui priskiriam kazkelinta masyvo elementa    
 cmp dx, 9       
 ja dvizenklis   ;jeigu daugiau uz 9, tai bus dvizenklis
 
