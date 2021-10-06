@@ -24,7 +24,7 @@ testing:                ;tikrinam kiekviena ivesta zenkla
 inc dl                  ;nustatom nariu pozicija    
 inc si                  ;kad nuskaitytu ten, kur 100dup(0), o ne kur ?, cia tas pats kaip byte ptr [si] + 1
 mov al, byte ptr [si]   ;al - priskiriu si-elinta (kazkelinta) simboli
-cmp al, 20h             ;tarpas prilygsta 20 16-taineje sistemoje
+cmp al, 20h             ;tarpas prilygsta 20 16-taineje sistemoje, galima rasyti ir ' ' cia butu char formatu tarpas
 je tarpas               ;jump if equal
 cmp dl, cl              ;ziurim ar visus simbolius patikrinom
 jb testing              ;jump if its below/less than cl
@@ -35,7 +35,7 @@ inc bx                 ;bx - tarpu sk, kad zinot kiek kartu paskui isvesti
 mov di, offset array   ;di - masyvo adresas    
 mov [di+bx], dl        ;i masyva idedam tarpo pozicija
 cmp dl, cl
-jb testing      ;griztam prie simboliu tikrinimo
+jb testing             ;griztam prie simboliu tikrinimo
 
 line:
 mov ah, 9                ;string output
