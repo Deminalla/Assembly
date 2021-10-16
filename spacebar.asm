@@ -39,7 +39,7 @@ jb testing             ;griztam prie simboliu tikrinimo
 
 line:
 mov ah, 9                ;string output
-mov dx, offset new_line  ;endl
+mov dx, offset new_line  ;čia rodo nuo kur pradėti skaityti, $ ženklas new_line gale rodo kada sustoti
 int 21h 
 
 skaitmenu_sk: 
