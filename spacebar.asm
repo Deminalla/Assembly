@@ -5,7 +5,7 @@
 .DATA		;aprasom duomenu segmenta
 buff db  100            ;kiek max simboliu galima ivesti, nusprendziau, kad 100
      db  ?              ;kiek pats naudotojas iveda simboliu, tai ?, nes kol kas neaisku ir pati programa paskui suskaiciuos
-     db  100 dup(0)     ;dup yra simbolis, kuris kartojasi, pvz 100dup(0), tai 100 kartu bus 0    
+     db  100 dup(0)     ;dup yra tai kartojasi, pvz 100dup(0), tai 100 kartu bus 0, beje čia yra išsaugomi visi įvesti simboliai (eilutė visada baigiasi su 13, nes tai yra enter?)   
 new_line db  0dh, 0ah, '$'  ;cia tiesiog tuscia, galima paskui panaudot kaip ednl arba \n
 array db 100 dup(0)     ;padariau masyva, išskiria duomenų segmente vietą 100 baitams, kurių visos reikšmės 0        
 .CODE		;kodo segmentas
