@@ -25,21 +25,8 @@ strt:
 mov ax,@data
 mov ds, ax
   
-;open file
-mov ah, 3Dh    ;it means we will open a file 
-mov al, 0      ;0 means it's just for reading the file and nothing else
-mov dx, offset myfile ;dx is standard to use of reading
-int 21h
-mov input_descriptor, ax ;so we know which file this is exactly
- 
-jc error       ;jump if carry flag is 1 (unsuccessful file opening??)    
-
-;create a file rez
-mov ah, 3Ch    ;create a new file for results
-mov cx, 0      ;0 so it's only for reading
-mov dx, offset results
-int 21h 
-mov output_descriptor, ax
+call open_file    
+call create_file
 
 reading:
 mov ah, 3Fh    ;this will read the 1st file  
@@ -48,7 +35,7 @@ mov cx, 1      ;so it will read only 1 byte
 mov dx, offset read_buff ;this will save that one element in that array for now
 int 21h  
 
-cmp ax, 0
+cmp ax, 0      ;if there's nothing left to read, end of file
 je finish
 
 mov si, dx
@@ -165,7 +152,26 @@ mov cx, 6  ;STRING LENGTH.
 mov dx, offset nr_nine
 int  21h 
 jmp reading 
-  
+
+proc open_file
+mov ah, 3Dh    ;it means we will open a file 
+mov al, 0      ;0 means it's just for reading the file and nothing else
+mov dx, offset myfile ;dx is standard to use of reading
+int 21h 
+jc error       ;jump if carry flag is 1 (unsuccessful file opening??)
+mov input_descriptor, ax ;so we know which file this is exactly
+ret  
+endp open_file ;should i swap places and make it open_file endp?
+
+proc create_file
+mov ah, 3Ch    ;create a new file for results
+mov cx, 0      ;0 so it's only for reading
+mov dx, offset results
+int 21h 
+mov output_descriptor, ax
+ret
+endp create_file 
+
 error:
 mov ah, 9
 mov dx, offset help ;should error/help messages be stdout or in the rez file???
