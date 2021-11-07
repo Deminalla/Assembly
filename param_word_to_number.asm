@@ -36,11 +36,8 @@ mov si, offset myfile ;rasysime po simboli i vieta skirta duomenu failo vardui
 
 cmp byte ptr es:[80h], 0 ;nepaduota parametru
 je get_help
-;cmp es:[82h], '?/' ;paduotas /?, tik del jaunesnio vyresnio baitu sekos zodzius saugant atmintyje reikia tikrinti atvirksciai
-;jne cikliukas
 cmp byte ptr es:[84h], 13 ;po parametro /? daugiau nieko ir nera
 je get_help
-;cikliukas: 
 call duom_name  
 mov si, offset results 
 inc bx
