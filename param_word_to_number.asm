@@ -6,15 +6,13 @@ read_buff db 10 dup (?)     ;this will help us read the file character by 10 cha
 symbols dw 0                ;to check how many symbols we have to read in 10 element buffer or if its the end yet 
 element dw ?
 
-command_duom db 100 dup(0)  ;i think this might be the thing instead of myfile?
-command_rez db 100 dup(0)
-myfile db  "duom.txt", 0    ;i picked the name myfile, 0 shows the end of the filename string, the txt file is in emu8086/MyBuild 
-results db "rez.txt", 0     ;my second file 
-input_descriptor dw ?       ;its a number that helps identify the file its working with   
-output_descriptor dw ? 
-command_descriptor dw ? 
+myfile db 100 dup(0)        ;i picked the name myfile, 0 shows the end of the filename string, the txt file is in emu8086/MyBuild 
+results db 100 dup(0)       ;my second file 
 
-sos db "Si programa jusu .txt faile parasyto teksto skaicius pavers zodiais. Pvz, as12 bus asvienasdu$" ;if nothing is given or it only gets /? 
+input_descriptor dw ?       ;its a number that helps identify the file its working with   
+output_descriptor dw ?  
+
+sos db "Si programa jusu .txt faile parasyto teksto skaicius pavers zodiais. Pvz, as123 bus asvienasdutrys$" ;if nothing is given or it only gets /? 
 smth_wrong db "Ivyko klaida$" ;literally any type of error
 new_line db  0dh, 0ah, '$'
 
@@ -33,19 +31,25 @@ strt:
 mov ax,@data
 mov ds, ax     
 
-mov di, offset command_duom 
-mov bp, offset command_rez
-cmp byte ptr es:[80h], 0  ;no parameters were given
-je get_help  
-cmp es:[82h], '/?'
-je get_help 
-cmp es:[84h], 13 ;enter after 2 parameters  
-call two_param
+mov bx, 82h ; adresuosime su bx
+mov si, offset myfile ;rasysime po simboli i vieta skirta duomenu failo vardui
+
+cmp byte ptr es:[80h], 0 ;nepaduota parametru
+je get_help
+;cmp es:[82h], '?/' ;paduotas /?, tik del jaunesnio vyresnio baitu sekos zodzius saugant atmintyje reikia tikrinti atvirksciai
+;jne cikliukas
+cmp byte ptr es:[84h], 13 ;po parametro /? daugiau nieko ir nera
+je get_help
+;cikliukas: 
+call duom_name  
+mov si, offset results 
+inc bx
+call rez_name
 
 call open_file     
 call create_file  
 
-reading:       
+reading:      
 mov ah, 3Fh              ;this will read the 1st file  
 mov bx, input_descriptor ;so it knkows which file to read
 mov cx, 10                ;so it will read 10 bytes
@@ -55,7 +59,7 @@ jc error          ;an error when trying to read the file
 
 mov symbols, ax
 cmp symbols, 0         ;if there's nothing left to read, end of file
-je finish  
+je close_files  
 mov si, dx 
 call write_file
 jmp reading
@@ -71,26 +75,43 @@ mov ah, 9
 mov dx, offset smth_wrong      ;for example 1st file duom,txt doesn't exist
 int 21h 
 
-finish: 
+close_files:
 mov ah, 3Eh   ;close 1st file
 mov bx, input_descriptor
 int 21h
 
 mov ah, 3Eh   ;close 2nd file
 mov bx, output_descriptor
-int 21h  
-
+int 21h 
+finish:  
 mov ax, 4Ch	  ;yep i wrote the finishing function in the middle :)	
 int 21h
 
-proc two_param
-;add stuff later
-mov dl, byte ptr es:[82h] 
-mov [di], dl  ;command_duom 
-mov, dl byte ptr es:[84h]
-mov [bp], dl  ;command_rez
-ret
-endp two_param
+proc duom_name ;cia net neateina  
+duom_file:
+cmp byte ptr es:[bx], 20h ;when its a space, that means afterwards comes rez.txt
+je go_back
+mov dl, byte ptr es:[bx] 
+mov [si], dl  ;myfile
+inc bx
+inc si
+jmp duom_file 
+go_back:
+ret 
+endp duom_name
+
+proc rez_name ;cia net neateina  
+rez_file:
+cmp byte ptr es:[bx], 13 ;when its a space, that means afterwards comes rez.txt
+je get_back
+mov dl, byte ptr es:[bx] 
+mov [si], dl  ;myfile
+inc bx
+inc si
+jmp rez_file 
+get_back:
+ret 
+endp rez_name
 
 proc open_file
 mov ah, 3Dh    ;it means we will open a file 
@@ -107,6 +128,7 @@ mov ah, 3Ch    ;create a new file for results
 mov cx, 0      ;0 so it's only for reading
 mov dx, offset results
 int 21h 
+jc error
 mov output_descriptor, ax
 ret
 endp create_file 
@@ -248,11 +270,8 @@ mov cx, symbols
 cmp cx, 0
 jne continue1 ;if its not 0 
 ret   
-endp write_file
-			
+endp write_file			
 end strt    
 
-;Visi parametrai programai turi buti paduodami komandine eilute, o ne prasant juos ivesti is klaviaturos. Pvz.: antra duom.txt rez.txt  (antra cia mano asm failo pavadinimas)
 ;Jeigu programa paleista be parametru arba parametrai nekorektiski, reikia atspausdinti pagalbos pranesima toki pati, kaip paleidus programa su parametru /?.
-;Programa turi apdoroti ivedimo isvedimo (ir kitokias) klaidas. Pvz, nustacius, kad nurodytas failas neegzistuoja - ji turi isvesti pagalbos pranesima ir baigti darba.
-     
+;Programa turi apdoroti ivedimo isvedimo (ir kitokias) klaidas. Pvz, nustacius, kad nurodytas failas neegzistuoja - ji turi isvesti pagalbos pranesima ir baigti darba.  
