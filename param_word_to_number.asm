@@ -1,5 +1,4 @@
 ;Jeigu programa paleista be parametru arba parametrai nekorektiski, reikia atspausdinti pagalbos pranesima toki pati, kaip paleidus programa su parametru /?.
-;Programa turi apdoroti ivedimo isvedimo (ir kitokias) klaidas. Pvz, nustacius, kad nurodytas failas neegzistuoja - ji turi isvesti pagalbos pranesima ir baigti darba. (AR man konkretizuot kokia klaida?)
 .model small       
 .stack 100h
 .data    
@@ -15,7 +14,10 @@ input_descriptor dw ?         ;descripto is a number that helps identify the fil
 output_descriptor dw ?  
 
 sos db "Programa jusu .txt faile parasyto teksto skaicius pavers zodiais. Pvz, as123 bus asvienasdutrys$" ;if gets /? or the parameters are incorrect
-smth_wrong db "Ivyko klaida$" ;literally any type of error
+read_wrong db "Nepavyko perskaityti failo$" 
+open_wrong db "Nepavyko atidaryti failo$" 
+create_wrong db "Nepavyko sukurti failo$"
+write_wrong db "Nepavyko rasyti i faila$"
 new_line db  0dh, 0ah, '$'
 
 nr_zero db "nulis$"
@@ -36,13 +38,16 @@ mov ds, ax
 mov bx, 82h 
 mov si, offset myfile 
 
-cmp byte ptr es:[80h], 0 ;no parameters were given
+cmp byte ptr es:[80h], 0  ;no parameters were given
 je get_help
-cmp byte ptr es:[84h], 13 ;not enough parameters 
+cmp byte ptr es:[84h], 13 ;enter right after /?
 je get_help 
-call duom_name  
+call duom_name   
+mov bp, bx
 mov si, offset results 
-inc bx
+inc bx     
+cmp byte ptr es:[bp], 13  ;wehter its enter because if so, we are missing the 2nd parameter
+je get_help
 call rez_name
 
 call open_file     
@@ -54,7 +59,7 @@ mov bx, input_descriptor  ;so it knkows which file to read
 mov cx, 10                ;read 10 bytes
 mov dx, offset read_buff  ;save the elements in that array for now
 int 21h
-jc error            ;an error when trying to read the file  
+jc error_read            ;an error when trying to read the file  
 
 mov symbols, ax     ;how many symbols we found out of 10
 cmp symbols, 0      ;if there's nothing left to read, end of file
@@ -69,16 +74,30 @@ mov dx, offset sos  ;save out sould :D
 int 21h
 jmp finish
 
-error:
+error_open:
 mov ah, 9
-mov dx, offset smth_wrong    ;for example 1st file duom.txt doesn't exist
+mov dx, offset open_wrong    ;for example 1st file duom.txt doesn't exist
+int 21h 
+jmp close_files
+error_read:
+mov ah, 9
+mov dx, offset read_wrong    
+int 21h 
+jmp close_files
+error_create:
+mov ah, 9
+mov dx, offset create_wrong   
+int 21h 
+jmp close_files
+error_write:
+mov ah, 9
+mov dx, offset write_wrong    
 int 21h 
 
 close_files:
 mov ah, 3Eh   ;close 1st file
 mov bx, input_descriptor
 int 21h
-
 mov ah, 3Eh   ;close 2nd file
 mov bx, output_descriptor
 int 21h 
@@ -87,7 +106,9 @@ mov ax, 4Ch	  ;yep i wrote the finishing function in the middle :)
 int 21h
 
 proc duom_name  
-duom_file:
+duom_file: 
+cmp byte ptr es:[bx], 13  ;if its enter we go back
+je go_back
 cmp byte ptr es:[bx], 20h ;when its a space, that means afterwards comes rez.txt so we end this
 je go_back
 mov dl, byte ptr es:[bx] 
@@ -117,7 +138,7 @@ mov ah, 3Dh    ;it means we will open a file
 mov al, 0      ;0 means it's just for reading the file and nothing else
 mov dx, offset myfile ;dx is standard to use of reading
 int 21h 
-jc error       ;jump if carry flag is 1 (unsuccessful file opening??)
+jc error_open     ;jump if carry flag is 1 (unsuccessful file opening??)
 mov input_descriptor, ax ;so we know which file this is exactly
 ret  
 endp open_file ;should i swap places and make it open_file endp?
@@ -127,14 +148,14 @@ mov ah, 3Ch    ;create a new file for results
 mov cx, 0      ;0 so it's only for reading
 mov dx, offset results
 int 21h 
-jc error
+jc error_create
 mov output_descriptor, ax
 ret
 endp create_file 
 
 proc write_file 
 cycle:  
-jc error   ;unable to write anything
+jc error_write   ;unable to write anything
 cmp byte ptr[si], '0'   
 jne one 
 mov ah, 40h
