@@ -1,4 +1,3 @@
-;Jeigu programa paleista be parametru arba parametrai nekorektiski, reikia atspausdinti pagalbos pranesima toki pati, kaip paleidus programa su parametru /?.
 .model small       
 .stack 100h
 .data    
@@ -32,24 +31,18 @@ nr_eight db "astuoni$"
 nr_nine db "devyni$"
 .code
 strt: 
-   
 mov ax,@data
 mov ds, ax     
 
 mov bx, 82h 
 mov si, offset myfile 
+mov di, offset results  
 
 cmp byte ptr es:[80h], 0  ;no parameters were given, this shows length of command line string, so if its mycode then 6?
 je get_help
-cmp byte ptr es:[84h], 13 ;enter right after /?
-je get_help 
-call duom_name   
-mov bp, bx
-mov si, offset results 
-inc bx     
-cmp byte ptr es:[bp], 13  ;wehter its enter because if so, we are missing the 2nd parameter
-je get_help
-call rez_name
+cmp es:[82h], '?/' ;/? but reads it in reverse
+je get_help  
+call file_name 
 
 call open_file     
 call create_file  
@@ -106,33 +99,28 @@ finish:
 mov ax, 4Ch	  ;yep i wrote the finishing function in the middle :)	
 int 21h
 
-proc duom_name  
+proc file_name  
 duom_file: 
 cmp byte ptr es:[bx], 13  ;if its enter we go back
-je go_back
+je get_help
 cmp byte ptr es:[bx], 20h ;when its a space, that means afterwards comes rez.txt so we end this
-je go_back
+je rez_file
 mov dl, byte ptr es:[bx] 
-mov [si], dl  ;fill in myfile 1 by 1 untill we get the whole name
+mov [si], dl             ;fill in myfile 1 by 1 untill we get the whole name
 inc bx
 inc si
 jmp duom_file 
+rez_file:
+inc bx     
+cmp byte ptr es:[bx], 13 
+je go_back
+mov dl, byte ptr es:[bx] 
+mov [di], dl  
+inc di
+jmp rez_file
 go_back:
 ret 
-endp duom_name
-
-proc rez_name 
-rez_file:
-cmp byte ptr es:[bx], 13 
-je get_back
-mov dl, byte ptr es:[bx] 
-mov [si], dl  
-inc bx
-inc si
-jmp rez_file 
-get_back:
-ret 
-endp rez_name
+endp file_name
 
 proc open_file
 mov ah, 3Dh    ;it means we will open a file 
@@ -164,7 +152,7 @@ mov bx, output_descriptor
 mov cx, 5  ;lenght of characters to print
 mov dx, offset nr_zero
 int  21h 
-jmp middle   
+jmp testing   
 
 one:
 cmp byte ptr[si], '1'
@@ -174,7 +162,7 @@ mov bx, output_descriptor
 mov cx, 6  ;lenght of characters to print
 mov dx, offset nr_one
 int  21h      
-jmp middle
+jmp testing
 
 two:
 cmp byte ptr[si], '2'
@@ -184,7 +172,7 @@ mov bx, output_descriptor
 mov cx, 2  ;lenght of characters to print
 mov dx, offset nr_two
 int  21h  
-jmp middle 
+jmp testing 
 
 three:
 cmp byte ptr[si], '3' 
@@ -194,10 +182,7 @@ mov bx, output_descriptor
 mov cx, 4  
 mov dx, offset nr_three
 int  21h 
-jmp middle 
-
-continue2: ;continue1 and continue2 is necessary, otherwise the jumps are out of range
-jmp cycle
+jmp testing 
 
 four:
 cmp byte ptr[si], '4'   
@@ -207,7 +192,7 @@ mov bx, output_descriptor
 mov cx, 6 
 mov dx, offset nr_four
 int  21h  
-jmp middle  
+jmp testing  
 
 five:
 cmp byte ptr[si], '5'
@@ -217,7 +202,6 @@ mov bx, output_descriptor
 mov cx, 5  
 mov dx, offset nr_five
 int  21h    
-middle:
 jmp testing    
 
 six:                 
@@ -240,8 +224,8 @@ mov dx, offset nr_seven
 int  21h   
 jmp testing 
 
-continue1:  
-jmp continue2  ;otherwise its too big of a jump
+continue:  
+jmp cycle  ;otherwise its too big of a jump, out of range
 
 eight:
 cmp byte ptr[si], '8'
@@ -289,7 +273,7 @@ inc si
 dec symbols  
 mov cx, symbols
 cmp cx, 0
-jne continue1 
+jne continue 
 ret   
 endp write_file			
 end strt    
