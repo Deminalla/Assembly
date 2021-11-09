@@ -7,7 +7,7 @@ read_buff db 10 dup (?)       ;this will help us read the file by 10 characters
 symbols dw 0                  ;to check how many symbols we have to read in a 10 element buffer or if its the end yet 
 element dw ?                  ;what character it is if not a digit
 
-myfile db 100 dup(0)          ;1st file for reading
+myfile db 100 dup(0)          ;1st file for reading, I could make it a constant as  myfile db "duom.txt", 0
 results db 100 dup(0)         ;2nd file for writing
 
 input_descriptor dw ?         ;descripto is a number that helps identify the file its working with, so it doesn't confuse it with other stuff 
