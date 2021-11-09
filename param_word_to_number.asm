@@ -141,7 +141,7 @@ int 21h
 jc error_open     ;jump if carry flag is 1 (unsuccessful file opening??)
 mov input_descriptor, ax ;so we know which file this is exactly
 ret  
-endp open_file ;should i swap places and make it open_file endp?
+endp open_file 
 
 proc create_file
 mov ah, 3Ch    ;create a new file for results
