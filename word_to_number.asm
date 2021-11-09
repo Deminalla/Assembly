@@ -1,17 +1,17 @@
-.model small       
+.model small
 .stack 100h
-.data    
-
+.data
+	
 read_buff db 10 dup (?)       ;this will help us read the file by 10 characters       
 symbols dw 0                  ;to check how many symbols we have to read in a 10 element buffer or if its the end yet 
-element dw ?                  ;what character it is if not a digit
-
+element dw ? 				  ;what character it is if not a digit
+	
 myfile db 100 dup(0)          ;1st file for reading
 results db 100 dup(0)         ;2nd file for writing
 
 input_descriptor dw ?         ;descripto is a number that helps identify the file its working with, so it doesn't confuse it with other stuff 
-output_descriptor dw ?  
-
+output_descriptor dw ? 
+	
 sos db "Programa jusu .txt faile parasyto teksto skaicius pavers zodiais. Pvz, as123 bus asvienasdutrys$" ;if gets /? or the parameters are incorrect
 read_wrong db "Nepavyko perskaityti failo$" 
 open_wrong db "Nepavyko atidaryti failo$" 
@@ -30,30 +30,28 @@ nr_seven db "septyni$"
 nr_eight db "astuoni$" 
 nr_nine db "devyni$"
 .code
-strt: 
-mov ax,@data
-mov ds, ax     
+mov ax, @data
+mov ds, ax
 
 mov bx, 82h 
 mov si, offset myfile 
 mov di, offset results  
-
 cmp byte ptr es:[80h], 0  ;no parameters were given, this shows length of command line string, so if its mycode then 6?
 je get_help
-cmp es:[82h], '?/' ;/? but reads it in reverse
+cmp es:[82h], '?/'        ;/? but reads it in reverse
 je get_help  
-call file_name 
 
+call file_name 	
 call open_file     
-call create_file  
-
+call create_file 
+	
 reading:      
 mov ah, 3Fh               ;read a file  
 mov bx, input_descriptor  ;so it knkows which file to read
 mov cx, 10                ;read 10 bytes
 mov dx, offset read_buff  ;save the elements in that array for now
 int 21h
-jc error_read            ;an error when trying to read the file  
+jc error_read             ;an error when trying to read the file  
 
 mov symbols, ax     ;how many symbols we found out of 10
 cmp symbols, 0      ;if there's nothing left to read, end of file
@@ -64,49 +62,18 @@ jmp reading         ;after checking 10 or less symbols, repeat
 
 get_help:
 mov ah, 9
-mov dx, offset sos  ;save out sould :D
+mov dx, offset sos  ;save our souls :D
 int 21h
 jmp finish
 
-error_open:
-mov ah, 9
-mov dx, offset open_wrong    ;for example 1st file duom.txt doesn't exist
-int 21h 
-jmp close_files
-error_read:
-mov ah, 9
-mov dx, offset read_wrong    
-int 21h 
-jmp close_files
-error_create:
-mov ah, 9
-mov dx, offset create_wrong   
-int 21h 
-jmp close_files
-error_write:
-mov ah, 9
-mov dx, offset write_wrong    
-int 21h 
-
-close_files:
-mov ah, 3Eh   ;close 1st file
-mov bx, input_descriptor
-int 21h
-mov ah, 3Eh   ;close 2nd file
-mov bx, output_descriptor
-int 21h 
-finish:  
-mov ax, 4Ch	  ;yep i wrote the finishing function in the middle :)	
-int 21h
-
 proc file_name  
 duom_file: 
-cmp byte ptr es:[bx], 13  ;if its enter we go back
+cmp byte ptr es:[bx], 13   ;if its enter we go back
 je get_help
-cmp byte ptr es:[bx], 20h ;when its a space, that means afterwards comes rez.txt so we end this
+cmp byte ptr es:[bx], 20h  ;when its a space, that means afterwards comes rez.txt so we end this
 je rez_file
 mov dl, byte ptr es:[bx] 
-mov [si], dl             ;fill in myfile 1 by 1 untill we get the whole name
+mov [si], dl               ;fill in myfile 1 by 1 untill we get the whole name
 inc bx
 inc si
 jmp duom_file 
@@ -122,34 +89,68 @@ go_back:
 ret 
 endp file_name
 
-proc open_file
-mov ah, 3Dh    ;it means we will open a file 
-mov al, 0      ;0 means it's just for reading the file and nothing else
-mov dx, offset myfile ;dx is standard to use of reading
+error_open:
+mov ah, 9
+mov dx, offset open_wrong    ;for example 1st file duom.txt doesn't exist
 int 21h 
-jc error_open     ;jump if carry flag is 1 (unsuccessful file opening??)
-mov input_descriptor, ax ;so we know which file this is exactly
+jmp finish   
+error_read:
+mov ah, 9
+mov dx, offset read_wrong    
+int 21h 
+jmp finish   
+error_create:
+mov ah, 9
+mov dx, offset create_wrong   
+int 21h 
+jmp finish   
+
+close_files:
+mov ah, 3Eh   ;close 1st file
+mov bx, input_descriptor
+int 21h
+mov ah, 3Eh   ;close 2nd file
+mov bx, output_descriptor
+int 21h 
+finish:
+mov ah, 4Ch
+int 21h
+jmp the_end
+
+proc open_file
+mov ah, 3Dh               ;it means we will open a file 
+mov al, 0                 ;0 means it's just for reading the file and nothing else
+mov dx, offset myfile     ;dx is standard to use of reading
+int 21h 
+jc error_open             ;jump if carry flag is 1 (unsuccessful file opening??)
+mov input_descriptor, ax  ;so we know which file this is exactly
 ret  
-endp open_file ;should i swap places and make it open_file endp?
+endp open_file 
 
 proc create_file
-mov ah, 3Ch    ;create a new file for results
-mov cx, 0      ;0 so it's only for reading
+mov ah, 3Ch               ;create a new file for results
+mov cx, 0     			  ;0 so it's only for reading
 mov dx, offset results
 int 21h 
 jc error_create
 mov output_descriptor, ax
 ret
-endp create_file 
+endp create_file
+
+error_write:
+mov ah, 9
+mov dx, offset write_wrong    
+int 21h 
+jmp finish   
 
 proc write_file 
 cycle:  
-jc error_write   ;unable to write anything
+jc error_write   
 cmp byte ptr[si], '0'   
 jne one 
 mov ah, 40h
 mov bx, output_descriptor
-mov cx, 5  ;lenght of characters to print
+mov cx, 5    ;lenght of characters to print
 mov dx, offset nr_zero
 int  21h 
 jmp testing   
@@ -159,7 +160,7 @@ cmp byte ptr[si], '1'
 jne two  
 mov ah, 40h
 mov bx, output_descriptor
-mov cx, 6  ;lenght of characters to print
+mov cx, 6    ;lenght of characters to print
 mov dx, offset nr_one
 int  21h      
 jmp testing
@@ -169,7 +170,7 @@ cmp byte ptr[si], '2'
 jne three   
 mov ah, 40h
 mov bx, output_descriptor
-mov cx, 2  ;lenght of characters to print
+mov cx, 2  
 mov dx, offset nr_two
 int  21h  
 jmp testing 
@@ -275,5 +276,7 @@ mov cx, symbols
 cmp cx, 0
 jne continue 
 ret   
-endp write_file			
-end strt    
+endp write_file
+
+the_end:	
+END
