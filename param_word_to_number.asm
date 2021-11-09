@@ -40,7 +40,7 @@ mov si, offset myfile
 
 cmp byte ptr es:[80h], 0  ;no parameters were given, this shows length of command line string, so if its mycode then 6?
 je get_help
-cmp byte ptr es:[84h], 13 ;enter right after /?
+cmp es:[82h], '?/' ;/? but it reads it in reverse
 je get_help 
 call duom_name   
 mov bp, bx
@@ -276,7 +276,7 @@ non_number:
 cmp byte ptr[si], 10   ;ignore 10 because its a combo of 13 and 10 meaning newline
 je testing  
 mov ax, [si]  
-mov element, ax
+mov element, ax        ;save the non-number symbol in element so we can use it later to offset
 mov ah, 40h
 mov bx, output_descriptor
 mov cx, 1  
@@ -284,8 +284,8 @@ mov dx, offset element
 int  21h  
 
 testing:
-inc si   
-dec symbols  
+inc si            ;increase position
+dec symbols       ;decrease the amount of symbols left to analyze
 mov cx, symbols
 cmp cx, 0
 jne continue1 
