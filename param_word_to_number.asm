@@ -38,7 +38,7 @@ mov ds, ax
 mov bx, 82h 
 mov si, offset myfile 
 
-cmp byte ptr es:[80h], 0  ;no parameters were given
+cmp byte ptr es:[80h], 0  ;no parameters were given, this shows length of command line string, so if its mycode then 6?
 je get_help
 cmp byte ptr es:[84h], 13 ;enter right after /?
 je get_help 
