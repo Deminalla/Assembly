@@ -1,3 +1,4 @@
+;Program finds digits in a file and changes them to words („1“ -> „vienas“,...) and saves the results to a new file 
 .model small
 .stack 100h
 .data
