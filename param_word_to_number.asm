@@ -1,4 +1,4 @@
-;Jeigu programa paleista be parametru arba parametrai nekorektiski, reikia atspausdinti pagalbos pranesima toki pati, kaip paleidus programa su parametru /?.
+;
 .model small       
 .stack 100h
 .data    
