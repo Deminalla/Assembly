@@ -70,7 +70,7 @@ jmp reading         ;after checking 10 or less symbols, repeat
 
 get_help:
 mov ah, 9
-mov dx, offset sos  ;save out sould :D
+mov dx, offset sos  ;save our souls :D
 int 21h
 jmp finish
 
