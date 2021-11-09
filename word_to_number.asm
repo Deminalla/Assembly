@@ -1,4 +1,8 @@
 ;Program finds digits in a file and changes them to words („1“ -> „vienas“,...) and saves the results to a new file 
+;Use command line (DOSBox) to compile code. For example, mycode data.txt results.txt
+;If the paramteres were incorrect or none were given, the program needs to output a message explaining what the program does, just like it would with /?
+;The program should handle (print out) file errors 
+
 .model small
 .stack 100h
 .data
