@@ -9,19 +9,19 @@
 	
 read_buff db 10 dup (?)       ;this will help us read the file by 10 characters       
 symbols dw 0                  ;to check how many symbols we have to read in a 10 element buffer or if its the end yet 
-element dw ? 				  ;what character it is if not a digit
+element dw ? 		      ;what character it is if not a digit
 	
 myfile db 100 dup(0)          ;1st file for reading
 results db 100 dup(0)         ;2nd file for writing
 
 input_descriptor dw ?         ;descripto is a number that helps identify the file its working with, so it doesn't confuse it with other stuff 
 output_descriptor dw ? 
-	
-sos db "Programa jusu .txt faile parasyto teksto skaicius pavers zodiais. Pvz, as123 bus asvienasdutrys$" ;if gets /? or the parameters are incorrect
-read_wrong db "Nepavyko perskaityti failo$" 
-open_wrong db "Nepavyko atidaryti failo$" 
-create_wrong db "Nepavyko sukurti failo$"
-write_wrong db "Nepavyko rasyti i faila$"
+
+sos db "The program finds numbers in your .txt file and turns them into words. For example, as123 bus asvienasdutrys$" ;if gets /? or the parameters are incorrect
+read_wrong db "Couldn't read file$" 
+open_wrong db "Couldn't open file$" 
+create_wrong db "Couldn't create file$"
+write_wrong db "Couldn't write to file$"
 new_line db  0dh, 0ah, '$'
 
 nr_zero db "nulis$"
@@ -134,7 +134,7 @@ endp open_file
 
 proc create_file
 mov ah, 3Ch               ;create a new file for results
-mov cx, 0     			  ;0 so it's only for reading
+mov cx, 0     		  ;0 means no attributes
 mov dx, offset results
 int 21h 
 jc error_create
